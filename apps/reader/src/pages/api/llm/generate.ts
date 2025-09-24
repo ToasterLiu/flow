@@ -75,9 +75,6 @@ export default async function handler(
       max_tokens: 1000,
     }
 
-    // 检查是否请求流式响应
-    const stream = req.query.stream === 'true'
-    
     if (stream) {
       requestBody.stream = true
     }
