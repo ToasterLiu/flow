@@ -1,6 +1,6 @@
 import { Overlay } from '@literal-ui/core'
 import clsx from 'clsx'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import FocusLock from 'react-focus-lock'
 import {
   MdCopyAll,
@@ -24,6 +24,8 @@ import { BookTab } from '../models'
 import { isTouchScreen, scale } from '../platform'
 import { useSettings } from '../state'
 import { copy, keys, last } from '../utils'
+import { getLLMConfig } from '../lib/llm-config'
+import { LLMClient, LLMMessage } from '../lib/llm-client'
 
 import { Button, IconButton } from './Button'
 import { TextField } from './Form'
@@ -286,6 +288,14 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
             </div>
           ))}
         </div>
+        {!annotate && (
+          <LLMMenuItem 
+            text={text} 
+            hide={hide}
+            cfi={cfi}
+            tab={tab}
+          />
+        )}
         {annotate && (
           <div className="mt-3 flex">
             {annotation && (
