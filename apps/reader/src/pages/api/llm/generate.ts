@@ -5,6 +5,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // 允许流式响应
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -17,9 +22,25 @@ export default async function handler(
     }
 
     const client = new LLMClient()
-    const response = await client.generate(messages)
     
-    res.status(200).json(response)
+    // 检查是否请求流式响应
+    const stream = req.query.stream === 'true'
+    
+    if (stream) {
+      // 流式响应
+      for await (const chunk of client.stream(messages)) {
+        res.write(chunk)
+        // 确保数据立即发送
+        if ('flush' in res) {
+          (res as any).flush()
+        }
+      }
+      res.end()
+    } else {
+      // 普通响应
+      const response = await client.generate(messages)
+      res.status(200).json(response)
+    }
   } catch (error) {
     console.error('LLM generation error:', error)
     res.status(500).json({ 
