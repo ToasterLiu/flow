@@ -55,12 +55,12 @@ export function LLMContextMenu({ x, y, selectedText, onClose }: LLMContextMenuPr
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-surface border border-outline rounded-md shadow-lg p-3 min-w-[200px]"
+      className="fixed z-50 bg-surface border border-outline rounded-md shadow-lg p-3 min-w-[200px] max-w-[400px]"
       style={{ left: x, top: y }}
     >
       <div className="text-sm mb-2">
         <div className="font-medium text-on-surface">选中的文本:</div>
-        <div className="text-on-surface-variant truncate">{selectedText}</div>
+        <div className="text-on-surface-variant text-xs break-words">{selectedText}</div>
       </div>
       
       {!hasValidConfig && (
@@ -78,12 +78,12 @@ export function LLMContextMenu({ x, y, selectedText, onClose }: LLMContextMenuPr
       </button>
       
       {error && (
-        <div className="mt-2 text-xs text-red-500">{error}</div>
+        <div className="mt-2 text-xs text-red-500 break-words">{error}</div>
       )}
       
       {response && (
-        <div className="mt-2 p-2 bg-surface-variant rounded-md max-h-40 overflow-y-auto">
-          <div className="text-sm text-on-surface">{response}</div>
+        <div className="mt-2 p-2 bg-surface-variant rounded-md max-h-60 overflow-y-auto">
+          <div className="text-sm text-on-surface break-words whitespace-pre-wrap">{response}</div>
         </div>
       )}
     </div>

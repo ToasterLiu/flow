@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getLLMConfig } from '../lib/llm-config'
 
 export function useLLMContextMenu() {
@@ -8,43 +8,31 @@ export function useLLMContextMenu() {
     selectedText: string
   } | null>(null)
 
-  useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => {
-      const selection = window.getSelection()
-      const selectedText = selection ? selection.toString().trim() : ''
-      
-      // 只有在有选中文本且配置有效时才显示菜单
-      const config = getLLMConfig()
-      const hasValidConfig = config.baseUrl && config.apiKey && config.modelName
-      
-      if (selectedText && hasValidConfig) {
-        e.preventDefault()
-        setContextMenu({
-          x: e.clientX,
-          y: e.clientY,
-          selectedText
-        })
-      } else {
-        setContextMenu(null)
-      }
-    }
-
-    const handleClick = () => {
-      setContextMenu(null)
-    }
-
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('click', handleClick)
+  const showContextMenu = useCallback((x: number, y: number, selectedText: string) => {
+    const config = getLLMConfig()
+    const hasValidConfig = config.baseUrl && config.apiKey && config.modelName
     
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('click', handleClick)
+    if (selectedText.trim() && hasValidConfig) {
+      setContextMenu({
+        x,
+        y,
+        selectedText: selectedText.trim()
+      })
     }
   }, [])
 
-  const closeContextMenu = () => {
+  const closeContextMenu = useCallback(() => {
     setContextMenu(null)
-  }
+  }, [])
 
-  return { contextMenu, closeContextMenu }
+  useEffect(() => {
+    const handleClick = () => {
+      closeContextMenu()
+    }
+
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [closeContextMenu])
+
+  return { contextMenu, showContextMenu, closeContextMenu }
 }
