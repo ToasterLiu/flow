@@ -11,26 +11,27 @@ export interface LLMResponse {
 }
 
 export class LLMClient {
-  private config = getLLMConfig()
-
   async generate(messages: LLMMessage[]): Promise<LLMResponse> {
+    // 每次调用时都获取最新配置
+    const config = getLLMConfig()
+    
     const systemMessage: LLMMessage = {
       role: 'system',
-      content: this.config.systemPrompt
+      content: config.systemPrompt
     }
 
     const requestBody = {
-      model: this.config.modelName,
+      model: config.modelName,
       messages: [systemMessage, ...messages],
       temperature: 0.7,
       max_tokens: 1000
     }
 
-    const response = await fetch(this.config.baseUrl, {
+    const response = await fetch(config.baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`
+        'Authorization': `Bearer ${config.apiKey}`
       },
       body: JSON.stringify(requestBody)
     })
@@ -48,7 +49,4 @@ export class LLMClient {
     }
   }
 
-  updateConfig(): void {
-    this.config = getLLMConfig()
-  }
 }
