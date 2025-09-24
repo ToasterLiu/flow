@@ -41,13 +41,19 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid messages format' })
     }
 
-    // 获取配置（在服务器端，这将使用环境变量）
-    const config: LLMConfig = getLLMConfig()
+    // 在服务器端，我们只能使用环境变量配置
+    const config: LLMConfig = {
+      baseUrl: process.env.NEXT_PUBLIC_LLM_API_BASE_URL || '',
+      apiKey: process.env.NEXT_PUBLIC_LLM_API_KEY || '',
+      modelName: process.env.NEXT_PUBLIC_LLM_MODEL_NAME || 'gpt-3.5-turbo',
+      systemPrompt: process.env.NEXT_PUBLIC_LLM_SYSTEM_PROMPT || 'You are a helpful assistant.'
+    }
     
     // 验证配置
     if (!config.baseUrl || !config.apiKey || !config.modelName) {
+      console.error('LLM configuration is incomplete. Check your .env.local file.')
       return res.status(400).json({ 
-        error: 'LLM configuration is incomplete. Please check your settings.' 
+        error: 'LLM configuration is incomplete. Please check your .env.local file.' 
       })
     }
 
