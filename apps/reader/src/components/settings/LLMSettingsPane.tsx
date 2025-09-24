@@ -27,6 +27,10 @@ export function LLMSettingsPane() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-medium">LLM API 配置</h2>
+      <p className="text-sm text-gray-600">
+        配置您的 LLM API 设置。这些值会覆盖环境变量中的默认值。
+        您也可以在 <code>.env.local</code> 文件中设置默认值。
+      </p>
       
       <TextField
         label="API 基础 URL"
