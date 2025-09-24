@@ -29,6 +29,7 @@ import { LLMClient, LLMMessage } from '../lib/llm-client'
 
 import { Button, IconButton } from './Button'
 import { TextField } from './Form'
+import { LLMMenuItem } from './LLMMenuItem'
 import { layout, LayoutAnchorMode, LayoutAnchorPosition } from './base'
 
 interface TextSelectionMenuProps {
