@@ -1,5 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { LLMClient, LLMMessage } from '../../../lib/llm-client'
+import { LLMConfig, getLLMConfig } from '../../../lib/llm-config'
+
+interface LLMMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+interface StreamChunk {
+  id: string
+  object: string
+  created: number
+  model: string
+  choices: Array<{
+    delta: {
+      content?: string
+      role?: string
+    }
+    index: number
+    finish_reason: string | null
+  }>
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,25 +41,102 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid messages format' })
     }
 
-    const client = new LLMClient()
+    // 获取配置（在服务器端，这将使用环境变量）
+    const config: LLMConfig = getLLMConfig()
     
+    // 验证配置
+    if (!config.baseUrl || !config.apiKey || !config.modelName) {
+      return res.status(400).json({ 
+        error: 'LLM configuration is incomplete. Please check your settings.' 
+      })
+    }
+
+    // 构建系统消息
+    const systemMessage: LLMMessage = {
+      role: 'system',
+      content: config.systemPrompt
+    }
+
+    const requestBody = {
+      model: config.modelName,
+      messages: [systemMessage, ...messages],
+      temperature: 0.7,
+      max_tokens: 1000,
+    }
+
     // 检查是否请求流式响应
     const stream = req.query.stream === 'true'
     
     if (stream) {
+      requestBody.stream = true
+    }
+
+    const apiResponse = await fetch(config.baseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    })
+
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text()
+      console.error('LLM API error:', apiResponse.status, apiResponse.statusText, errorText)
+      return res.status(apiResponse.status).json({ 
+        error: `LLM API error: ${apiResponse.statusText}`,
+        details: errorText
+      })
+    }
+
+    if (stream) {
       // 流式响应
-      for await (const chunk of client.stream(messages)) {
-        res.write(chunk)
-        // 确保数据立即发送
-        if ('flush' in res) {
-          (res as any).flush()
+      const reader = apiResponse.body?.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      try {
+        while (true) {
+          const { done, value } = await reader!.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || ''
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6)
+              if (data === '[DONE]') {
+                res.end()
+                return
+              }
+              try {
+                const chunk: StreamChunk = JSON.parse(data)
+                const content = chunk.choices[0]?.delta?.content
+                if (content) {
+                  res.write(content)
+                  if ('flush' in res) {
+                    (res as any).flush()
+                  }
+                }
+              } catch (e) {
+                // Ignore malformed JSON
+              }
+            }
+          }
         }
+        res.end()
+      } finally {
+        reader!.releaseLock()
       }
-      res.end()
     } else {
       // 普通响应
-      const response = await client.generate(messages)
-      res.status(200).json(response)
+      const data = await apiResponse.json()
+      res.status(200).json({
+        content: data.choices[0].message.content,
+        finish_reason: data.choices[0].finish_reason
+      })
     }
   } catch (error) {
     console.error('LLM generation error:', error)
