@@ -44,9 +44,12 @@ export default async function handler(
       systemPrompt: process.env.NEXT_PUBLIC_LLM_SYSTEM_PROMPT || 'You are a helpful assistant.'
     }
     
-    // 验证配置
-    if (!config.baseUrl || !config.apiKey || !config.modelName) {
+    // 验证配置 - 只检查必需的字段
+    if (!config.baseUrl || !config.apiKey) {
       console.error('LLM configuration is incomplete. Check your .env.local file.')
+      console.error('baseUrl:', config.baseUrl)
+      console.error('apiKey:', config.apiKey ? '***' : 'missing')
+      console.error('modelName:', config.modelName)
       return res.status(400).json({ 
         error: 'LLM configuration is incomplete. Please check your .env.local file.' 
       })
