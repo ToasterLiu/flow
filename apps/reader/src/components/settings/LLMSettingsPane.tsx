@@ -25,11 +25,9 @@ export function LLMSettingsPane() {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-medium">LLM API 配置</h2>
-      <p className="text-sm text-gray-600">
+    <div className="space-y-3">
+      <p className="text-sm text-on-surface-variant">
         配置您的 LLM API 设置。这些值会覆盖环境变量中的默认值。
-        您也可以在 <code>.env.local</code> 文件中设置默认值。
       </p>
       
       <TextField
@@ -55,25 +53,25 @@ export function LLMSettingsPane() {
       />
       
       <div>
-        <label className="block text-sm font-medium mb-1">系统提示</label>
+        <label className="block text-sm font-medium text-on-surface mb-1">系统提示</label>
         <textarea
           value={config.systemPrompt}
           onChange={(e) => handleChange('systemPrompt', e.target.value)}
-          className="w-full p-2 border rounded-md"
-          rows={4}
+          className="w-full px-3 py-2 text-sm border border-outline rounded-md bg-surface focus:outline-none focus:ring-1 focus:ring-primary"
+          rows={3}
           placeholder="您是一个乐于助人的助手。"
         />
       </div>
       
       <button
         onClick={handleSave}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        className="px-3 py-2 text-sm bg-primary text-on-primary rounded-md hover:bg-primary-container transition-colors"
       >
         保存配置
       </button>
       
       {isSaved && (
-        <div className="text-green-600 text-sm mt-2">配置已保存！</div>
+        <div className="text-green-600 text-sm">配置已保存！</div>
       )}
     </div>
   )
