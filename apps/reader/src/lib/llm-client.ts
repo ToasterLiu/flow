@@ -27,26 +27,14 @@ export interface StreamChunk {
 
 export class LLMClient {
   async generate(messages: LLMMessage[]): Promise<LLMResponse> {
-    // 每次调用时都获取最新配置
-    const config = getLLMConfig()
-    
-    const systemMessage: LLMMessage = {
-      role: 'system',
-      content: config.systemPrompt
-    }
-
     const requestBody = {
-      model: config.modelName,
-      messages: [systemMessage, ...messages],
-      temperature: 0.7,
-      max_tokens: 1000
+      messages
     }
 
-    const response = await fetch(config.baseUrl, {
+    const response = await fetch('/api/llm/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
       },
       body: JSON.stringify(requestBody)
     })
@@ -57,34 +45,21 @@ export class LLMClient {
 
     const data = await response.json()
     
-    // 假设是OpenAI兼容的API格式
     return {
-      content: data.choices[0].message.content,
-      finish_reason: data.choices[0].finish_reason
+      content: data.content,
+      finish_reason: data.finish_reason
     }
   }
 
   async* stream(messages: LLMMessage[]): AsyncGenerator<string, void, unknown> {
-    const config = getLLMConfig()
-    
-    const systemMessage: LLMMessage = {
-      role: 'system',
-      content: config.systemPrompt
-    }
-
     const requestBody = {
-      model: config.modelName,
-      messages: [systemMessage, ...messages],
-      temperature: 0.7,
-      max_tokens: 1000,
-      stream: true
+      messages
     }
 
-    const response = await fetch(config.baseUrl, {
+    const response = await fetch('/api/llm/generate?stream=true', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
       },
       body: JSON.stringify(requestBody)
     })
@@ -107,20 +82,8 @@ export class LLMClient {
         buffer = lines.pop() || ''
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
-            if (data === '[DONE]') {
-              return
-            }
-            try {
-              const chunk: StreamChunk = JSON.parse(data)
-              const content = chunk.choices[0]?.delta?.content
-              if (content) {
-                yield content
-              }
-            } catch (e) {
-              // Ignore malformed JSON
-            }
+          if (line) {
+            yield line
           }
         }
       }
