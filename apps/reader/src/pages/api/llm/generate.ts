@@ -41,7 +41,6 @@ export default async function handler(
     const openai = new OpenAI({
       baseURL: baseUrl,
       apiKey: apiKey,
-      dangerouslyAllowBrowser: true // 允许在浏览器环境中使用（仅用于API路由）
     })
 
     // 检查是否请求流式响应
