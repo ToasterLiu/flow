@@ -25,11 +25,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // 允许流式响应
-  res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-  res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('Connection', 'keep-alive')
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -55,6 +50,16 @@ export default async function handler(
       return res.status(400).json({ 
         error: 'LLM configuration is incomplete. Please check your .env.local file.' 
       })
+    }
+
+    // 检查是否请求流式响应
+    const stream = req.query.stream === 'true'
+    
+    if (stream) {
+      // 流式响应需要不同的Content-Type
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Connection', 'keep-alive')
     }
 
     // 构建系统消息
