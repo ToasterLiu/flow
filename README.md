@@ -4,80 +4,95 @@
 
 <p align="center">Free. Open source. Browser-based.</p>
 
-<p align="center"><img src="apps/website/public/screenshots/en-US.webp"/>
-</p>
+<h1 align="center"><a href="https://flowoss.com">Flow - 开源软件 (OSS)</a></h1>
 
-## Features
+<h2 align="center">重新定义 ePub 阅读器</h2>
 
-- Grid layout
-- Search in book
-- Image preview
-- Custom typography
-- Highlight and Annotation
-- Theme
-- Share/Download book with link
-- Data export
-- Cloud storage
+<p align="center">免费。开源。基于浏览器。</p>
 
-For planed features, see our [roadmap](https://pacexy.notion.site/283696d0071c43bfb03652e8e5f47936?v=b43f4dd7a3cb4ce785d6c32b698a8ff5).
+<p align="center"><img src="apps/website/public/screenshots/en-US.webp"/></p>
 
-## Development
+## 功能特点
 
-### Prerequisites
+- 网格布局
+- 书籍内搜索
+- 图片预览
+- 自定义排版
+- 高亮和注释
+- 主题
+- 通过链接分享/下载书籍
+- 数据导出
+- 云存储
+- **AI 大语言模型 (LLM) 集成**：可以直接在阅读时选中文字询问AI，获取智能解释和总结
+
+## 开发
+
+### 先决条件
 
 - [Node.js](https://nodejs.org)
 - [pnpm](https://pnpm.io/installation)
 - [Git](https://git-scm.com/downloads)
 
-### Clone the repo
+### 克隆仓库
 
 ```bash
 git clone https://github.com/pacexy/flow
 ```
 
-### Install the dependencies
+### 安装依赖
 
 ```bash
 pnpm i
 ```
 
-### Setup the environment variables
+### 配置环境变量
 
-Copy and rename all `.env.local.example`s to `.env.local` and setup the environment variables.
+将所有 `.env.local.example` 文件复制并重命名为 `.env.local`，然后设置环境变量。
 
-### Run the apps
+在 `.env.local` 中，您可以配置 LLM 相关环境变量，例如：
+
+```bash
+NEXT_PUBLIC_LLM_API_BASE_URL=https://api.openai.com/v1/chat/completions
+NEXT_PUBLIC_LLM_API_KEY=your_openai_api_key
+NEXT_PUBLIC_LLM_MODEL_NAME=gpt-3.5-turbo
+NEXT_PUBLIC_LLM_SYSTEM_PROMPT=You are a helpful assistant.
+```
+
+您也可以在应用程序设置页面中动态配置 LLM 参数。
+
+### 运行应用
 
 ```bash
 pnpm dev
 ```
 
-## Self-hosting
+## 自托管
 
-Before self-hosting, you should [setup the environment variables](#setup-the-environment-variables).
+自托管前，您需要[配置环境变量](#配置环境变量)。
 
 ### Docker
 
-You can use docker-compose:
+您可以使用 docker-compose：
 
 ```sh
 docker compose up -d
 ```
 
-Or build the image and run it manually:
+或手动构建镜像并运行：
 
 ```sh
 docker build -t flow .
 docker run -p 3000:3000 --env-file apps/reader/.env.local flow
 ```
 
-## Contributing
+## 贡献
 
-There are many ways in which you can participate in this project, for example:
+您可以通过多种方式参与此项目，例如：
 
-- [Submit bugs and feature requests](https://github.com/pacexy/flow/issues/new), and help us verify as they are checked in
-- [Submit pull requests](https://github.com/pacexy/flow/pulls)
+- [提交错误和功能请求](https://github.com/pacexy/flow/issues/new)，并帮助我们验证它们
+- [提交拉取请求](https://github.com/pacexy/flow/pulls)
 
-## Credits
+## 致谢
 
 - [Epub.js](https://github.com/futurepress/epub.js/)
 - [React](https://github.com/facebook/react)
@@ -85,3 +100,4 @@ There are many ways in which you can participate in this project, for example:
 - [TypeScript](https://www.typescriptlang.org)
 - [Vercel](https://vercel.com)
 - [Turborepo](https://turbo.build/repo)
+- [OpenAI](https://openai.com) (用于 LLM 集成功能)
