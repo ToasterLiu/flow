@@ -1,3 +1,4 @@
+import { HTMLStreamRenderer } from './HTMLStreamRenderer'
 import { useState, useEffect } from 'react'
 import { LLMClient, LLMMessage } from '../lib/llm-client'
 import { getLLMConfig } from '../lib/llm-config'
@@ -63,7 +64,7 @@ export function LLMMenuItem({ text, hide, cfi, tab }: LLMMenuItemProps) {
       
       {response && (
         <div className="mt-1 p-2 bg-surface-variant rounded-md max-h-40 overflow-y-auto text-sm">
-          <div className="text-on-surface break-words whitespace-pre-wrap">{response}</div>
+          <HTMLStreamRenderer htmlContent={response} />
         </div>
       )}
     </div>

@@ -27,8 +27,10 @@ export interface StreamChunk {
 
 export class LLMClient {
   async generate(messages: LLMMessage[]): Promise<LLMResponse> {
+    const config = getLLMConfig()
     const requestBody = {
-      messages
+      messages,
+      config,
     }
 
     const response = await fetch('/api/llm/generate', {
@@ -52,8 +54,10 @@ export class LLMClient {
   }
 
   async* stream(messages: LLMMessage[]): AsyncGenerator<string, void, unknown> {
+    const config = getLLMConfig()
     const requestBody = {
-      messages
+      messages,
+      config,
     }
 
     const response = await fetch('/api/llm/generate?stream=true', {
@@ -68,27 +72,13 @@ export class LLMClient {
       throw new Error(`LLM API error: ${response.status} ${response.statusText}`)
     }
 
-    const reader = response.body?.getReader()
+    if (!response.body) {
+      return
+    }
+
     const decoder = new TextDecoder()
-    let buffer = ''
-
-    try {
-      while (true) {
-        const { done, value } = await reader!.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          if (line) {
-            yield line
-          }
-        }
-      }
-    } finally {
-      reader!.releaseLock()
+    for await (const chunk of response.body) {
+      yield decoder.decode(chunk, { stream: true })
     }
   }
 }

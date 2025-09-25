@@ -1,3 +1,4 @@
+import { HTMLStreamRenderer } from './HTMLStreamRenderer'
 import { useState, useEffect, useRef } from 'react'
 import { LLMClient, LLMMessage } from '../lib/llm-client'
 import { getLLMConfig } from '../lib/llm-config'
@@ -83,7 +84,7 @@ export function LLMContextMenu({ x, y, selectedText, onClose }: LLMContextMenuPr
       
       {response && (
         <div className="mt-2 p-2 bg-surface-variant rounded-md max-h-60 overflow-y-auto">
-          <div className="text-sm text-on-surface break-words whitespace-pre-wrap">{response}</div>
+          <HTMLStreamRenderer htmlContent={response} />
         </div>
       )}
     </div>

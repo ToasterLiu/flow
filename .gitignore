@@ -38,3 +38,6 @@ yarn-error.log*
 **/public/workbox-*
 **/public/sw.*
 **/public/fallback-*
+/.aider.chat.history.md
+/.aider.input.history
+/.aider.tags.cache.v4/

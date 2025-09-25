@@ -15,17 +15,16 @@ export default async function handler(
   }
 
   try {
-    const { messages } = req.body as { messages: LLMMessage[] }
+    const { messages, config } = req.body as { messages: LLMMessage[], config: any }
     
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Invalid messages format' })
     }
 
-    // 在服务器端，我们只能使用环境变量配置
-    const baseUrl = process.env.NEXT_PUBLIC_LLM_API_BASE_URL
-    const apiKey = process.env.NEXT_PUBLIC_LLM_API_KEY
-    const modelName = process.env.NEXT_PUBLIC_LLM_MODEL_NAME || 'gpt-3.5-turbo'
-    const systemPrompt = process.env.NEXT_PUBLIC_LLM_SYSTEM_PROMPT || 'You are a helpful assistant.'
+    const baseUrl = config?.baseUrl || process.env.NEXT_PUBLIC_LLM_API_BASE_URL
+    const apiKey = config?.apiKey || process.env.NEXT_PUBLIC_LLM_API_KEY
+    const modelName = config?.modelName || process.env.NEXT_PUBLIC_LLM_MODEL_NAME || 'gpt-3.5-turbo'
+    const systemPrompt = config?.systemPrompt || process.env.NEXT_PUBLIC_LLM_SYSTEM_PROMPT || 'You are a helpful assistant.'
     
     // 验证配置 - 只检查必需的字段
     if (!baseUrl || !apiKey) {

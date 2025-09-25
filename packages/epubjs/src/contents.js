@@ -1234,9 +1234,11 @@ class Contents {
       this.documentElement.style[WRITING_MODE] = mode
     }
 
-    return (
-      this.window.getComputedStyle(this.documentElement)[WRITING_MODE] || ''
-    )
+    const style = this.window.getComputedStyle(this.documentElement)
+    if (!style) {
+      return ''
+    }
+    return style[WRITING_MODE] || ''
   }
 
   /**
